@@ -67,3 +67,37 @@ export const deletePerson = async (request, response, next) => {
     next(error)
   }
 }
+
+export const updatePerson = async (request, response, next) => {
+    try {
+        const { name, number } = request.body
+        
+        if (!name || !number) {
+            return response.status(400).json({
+                error: 'name and number are required'
+            })
+        }
+
+        const updatedPerson = await Person.findByIdAndUpdate(
+            request.params.id,
+            {
+                name: name.trim(),
+                number: number.trim(),
+            },
+            {
+                returnDocument: 'after',
+                runValidators: true,
+                context: 'query',
+            }
+            )
+        if (!updatedPerson) {
+            return response.status(404).json({
+                error: 'Contact not found',
+            })
+            }
+
+        return response.json(updatedPerson)
+        } catch (error) {
+        next(error)
+    }
+}

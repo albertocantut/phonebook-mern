@@ -21,14 +21,38 @@ function App() {
     loadPersons()
   }, [])
 
-  const createPerson = async (newPerson) => {
-    try {
-      const savedPerson = await personService.create(newPerson)
+const createPerson = async (newPerson) => {
+  const existingPerson = persons.find(
+    (person) =>
+      person.name.toLowerCase() ===
+      newPerson.name.toLowerCase()
+  )
 
-      setPersons((currentPersons) => [
-        ...currentPersons,
-        savedPerson,
-      ])
+  if (existingPerson) {
+    const confirmed = window.confirm(
+      `${existingPerson.name} is already in the phonebook. Replace the old number?`
+    )
+
+    if (!confirmed) {
+      return false
+    }
+
+    try {
+      const updatedPerson = await personService.update(
+        existingPerson.id,
+        {
+          name: existingPerson.name,
+          number: newPerson.number,
+        }
+      )
+
+      setPersons((currentPersons) =>
+        currentPersons.map((person) =>
+          person.id === updatedPerson.id
+            ? updatedPerson
+            : person
+        )
+      )
 
       setErrorMessage('')
       return true
@@ -36,12 +60,35 @@ function App() {
       console.error(error)
 
       const message =
-        error.response?.data?.error || 'Could not create the contact.'
+        error.response?.data?.error ||
+        'Could not update the contact.'
 
       setErrorMessage(message)
       return false
     }
   }
+
+  try {
+    const savedPerson = await personService.create(newPerson)
+
+    setPersons((currentPersons) => [
+      ...currentPersons,
+      savedPerson,
+    ])
+
+    setErrorMessage('')
+    return true
+  } catch (error) {
+    console.error(error)
+
+    const message =
+      error.response?.data?.error ||
+      'Could not create the contact.'
+
+    setErrorMessage(message)
+    return false
+  }
+}
 
   const deletePerson = async (id, name) => {
   const confirmed = window.confirm(

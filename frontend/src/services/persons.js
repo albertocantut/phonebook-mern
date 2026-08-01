@@ -12,11 +12,21 @@ const create = async (newPerson) => {
     return response.data
 }
 
+const update = async (id, updatedPerson) => {
+  const response = await axios.put(
+    `${baseUrl}/${id}`,
+    updatedPerson
+  )
+
+  return response.data
+}
+
 const remove = (id) => {
     return axios.delete(`${baseUrl}/${id}`)
 }
 export default {
     getAll,
     create,
+    update,
     remove
 }
