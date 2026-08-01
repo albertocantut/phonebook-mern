@@ -18,3 +18,5 @@ npm-debug.log*
 
 #Editor files
 .vscode/
+
+*.code-workspace
