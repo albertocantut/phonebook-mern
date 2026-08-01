@@ -11,7 +11,12 @@ const create = async (newPerson) => {
     const response = await axios.post(baseUrl, newPerson)
     return response.data
 }
+
+const remove = (id) => {
+    return axios.delete(`${baseUrl}/${id}`)
+}
 export default {
     getAll,
-    create
+    create,
+    remove
 }

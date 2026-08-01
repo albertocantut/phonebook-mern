@@ -43,6 +43,34 @@ function App() {
     }
   }
 
+  const deletePerson = async (id, name) => {
+  const confirmed = window.confirm(
+    `Delete ${name}?`
+  )
+
+  if (!confirmed) {
+    return
+  }
+
+  try {
+    await personService.remove(id)
+
+    setPersons((currentPersons) =>
+      currentPersons.filter(
+        (person) => person.id !== id
+      )
+    )
+  } catch (error) {
+    console.error(error)
+
+    const message =
+      error.response?.data?.error ||
+      'Could not delete the contact.'
+
+    setErrorMessage(message)
+  }
+}
+
   return (
     <main>
       <h1>Phonebook</h1>
@@ -58,14 +86,23 @@ function App() {
       ) : (
         <ul>
           {persons.map((person) => (
-            <li key={person.id}>
-              {person.name}: {person.number}
-            </li>
+           <li key={person.id}>
+            {person.name}: {person.number}
+
+            <button
+              onClick={() =>
+                deletePerson(person.id, person.name)
+              }
+            >
+              Delete
+            </button>
+          </li>
           ))}
         </ul>
       )}
     </main>
   )
 }
+
 
 export default App

@@ -4,13 +4,13 @@ const escapeRegExp = (value) => {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 }
 
-export const getPersons = async (request, response, next) => {
-    try {
-        const persons = await Person.find({})
-        response.json(persons)
-    } catch (error) {
-        next(error)
-    }
+export const getPersons = async (_request, response, next) => {
+  try {
+    const persons = await Person.find({})
+    response.json(persons)
+  } catch (error) {
+    next(error)
+  }
 }
 
 export const createPerson = async (request, response, next) => {
