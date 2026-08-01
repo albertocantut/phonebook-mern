@@ -1,12 +1,27 @@
-import axios from 'axios'
+import mongoose from 'mongoose'
 
-const baseUrl = 'http://localhost:3001/api/persons'
+const personSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+    minlength: 3,
+  },
+  number: {
+    type: String,
+    required: true,
+    minlength: 8,
+  },
+})
 
-const getAll = async () => {
-    const response = await axios.get(baseUrl)
-    return response.data
-}
+personSchema.set('toJSON', {
+  transform: (document, returnedObject) => {
+    returnedObject.id = returnedObject._id.toString()
 
-export default {
-    getAll,
-}
+    delete returnedObject._id
+    delete returnedObject.__v
+  },
+})
+
+const Person = mongoose.model('Person', personSchema)
+
+export default Person
