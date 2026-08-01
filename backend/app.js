@@ -1,6 +1,6 @@
 import cors from 'cors'
 import express from 'express'
-import Person from './models/person.js'
+import personsRouter from './routes/personsRoutes.js'
 
 const app = express()
 
@@ -11,54 +11,7 @@ app.get('/', (_request, response) => {
   response.send('<h1>Phonebook API</h1>')
 })
 
-app.get('/api/persons', async (_request, response, next) => {
-  try {
-    const persons = await Person.find({})
-    response.json(persons)
-  } catch (error) {
-    next(error)
-  }
-})
-
-app.post('/api/persons', async (request, response, next) => {
-  try {
-    const { name, number } = request.body
-
-    if (!name || !number) {
-      return response.status(400).json({
-        error: 'Name and number are required',
-      })
-    }
-
-    const nameAlreadyExists = await Person.findOne({
-      name: {
-        $regex: `^${escapeRegExp(name.trim())}$`,
-        $options: 'i',
-      },
-    })
-
-    if (nameAlreadyExists) {
-      return response.status(400).json({
-        error: 'A contact with this name already exists',
-      })
-    }
-
-    const person = new Person({
-      name: name.trim(),
-      number: number.trim(),
-    })
-
-    const savedPerson = await person.save()
-
-    return response.status(201).json(savedPerson)
-  } catch (error) {
-    next(error)
-  }
-})
-
-const escapeRegExp = (value) => {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-}
+app.use('/api/persons', personsRouter)
 
 app.use((error, _request, response, _next) => {
   console.error(error.message)
@@ -66,6 +19,12 @@ app.use((error, _request, response, _next) => {
   if (error.name === 'ValidationError') {
     return response.status(400).json({
       error: error.message,
+    })
+  }
+
+  if (error.name === 'CastError') {
+    return response.status(400).json({
+      error: 'Invalid contact ID',
     })
   }
 
